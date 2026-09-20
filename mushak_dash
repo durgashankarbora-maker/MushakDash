@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mushak Dash V5.2</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: #120b2e;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gameShell {
+    position: relative;
+    width: min(100vw, 900px);
+    height: min(100vh, 700px);
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 20%, #54358f 0%, #211348 42%, #0d0820 100%);
+    border: 3px solid #f5c542;
+    box-shadow: 0 0 30px rgba(245,197,66,.45);
+}
+
+/* SKY */
+.sky {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.moon {
+    position: absolute;
+    top: 45px;
+    right: 55px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #fff2ad;
+    box-shadow: 0 0 25px #ffe68a;
+}
+
+.star {
+    position: absolute;
+    color: #fff5bd;
+    animation: twinkle 1.8s infinite alternate;
+}
+
+@keyframes twinkle {
+    from { opacity: .25; transform: scale(.8); }
+    to { opacity: 1; transform: scale(1.2); }
+}
+
+.cloud {
+    position: absolute;
+    color: rgba(255,255,255,.14);
+    font-size: 55px;
+}
+
+/* FESTIVAL HEADER */
+#festivalHeader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 95px;
+    z-index: 10;
+    text-align: center;
+    padding-top: 10px;
+    background: linear-gradient(
+        to bottom,
+        rgba(15,7,40,.85),
+        rgba(15,7,40,.15)
+    );
+}
+
+#festivalHeader h1 {
+    margin: 0;
+    color: #ffd75a;
+    font-size: clamp(25px, 5vw, 44px);
+    text-shadow: 0 0 12px rgba(255,215,90,.8);
+}
+
+#festivalHeader p {
+    margin: 3px 0;
+    color: #fff;
+    font-size: 13px;
+}
+
+/* LIGHTS */
+.lights {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    z-index: 20;
+}
+
+.bulb {
+    width: 10px;
+    height: 10px;
+    margin-top: 2px;
+    border-radius: 50%;
+    background: #ffe66d;
+    box-shadow: 0 0 12px #ffe66d;
+    animation: bulbGlow 1s infinite alternate;
+}
+
+.bulb:nth-child(even) {
+    animation-delay: .5s;
+}
+
+@keyframes bulbGlow {
+    from { opacity: .35; }
+    to { opacity: 1; }
+}
+
+/* PANDAL */
+#pandal {
+    position: absolute;
+    top: 88px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 180px;
+    height: 105px;
+    z-index: 3;
+    text-align: center;
+}
+
+.pandalRoof {
+    width: 180px;
+    height: 28px;
+    background: linear-gradient(90deg,#f7b733,#ffd96a,#f7b733);
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+}
+
+.pandalBody {
+    width: 145px;
+    height: 70px;
+    margin: auto;
+    border-left: 8px solid #f0a83b;
+    border-right: 8px solid #f0a83b;
+    background: rgba(255,215,100,.15);
+}
+
+.ganesha {
+    font-size: 48px;
+    line-height: 65px;
+    filter: drop-shadow(0 0 7px rgba(255,190,50,.7));
+}
+
+/* GAME AREA */
+#playArea {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 95px;
+    bottom: 100px;
+    overflow: hidden;
+}
+
+/* ROAD */
+#road {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 48%;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #3c2655 0px,
+            #3c2655 45px,
+            #432c5f 45px,
+            #432c5f 90px
+        );
+    border-top: 4px solid #d79c42;
+}
+
+#road::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 7px;
+    height: 100%;
+    transform: translateX(-50%);
+    background: repeating-linear-gradient(
+        to bottom,
+        #f8d36b 0px,
+        #f8d36b 30px,
+        transparent 30px,
+        transparent 65px
+    );
+    opacity: .7;
+}
+
+/* PLAYER */
+#player {
+    position: absolute;
+    left: 50%;
+    bottom: 25px;
+    width: 62px;
+    height: 62px;
+    transform: translateX(-50%);
+    z-index: 8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    filter: drop-shadow(0 4px 5px rgba(0,0,0,.5));
+    transition: left .08s linear;
+}
+
+#player.shielded {
+    filter:
+        drop-shadow(0 0 8px #6ee7ff)
+        drop-shadow(0 0 15px #6ee7ff);
+}
+
+#shieldRing {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    border: 3px solid #66eaff;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #66eaff;
+    animation: shieldPulse .8s infinite alternate;
+    display: none;
+}
+
+#player.shielded #shieldRing {
+    display: block;
+}
+
+@keyframes shieldPulse {
+    from { transform: scale(.9); opacity: .65; }
+    to { transform: scale(1.08); opacity: 1; }
+}
+
+/* FALLING OBJECTS */
+.fallingObject {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 52px;
+    height: 52px;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 35px;
+    will-change: transform;
+    pointer-events: none;
+}
+
+.fallingObject.item {
+    filter: drop-shadow(0 0 7px rgba(255,220,80,.7));
+}
+
+.fallingObject.obstacle {
+    filter: drop-shadow(0 0 7px rgba(255,90,90,.6));
+}
+
+.fallingObject.shield {
+    filter: drop-shadow(0 0 9px rgba(80,220,255,.8));
+}
+
+/* HUD */
+#hud {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 55px;
+    z-index: 30;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.hudBox {
+    min-width: 90px;
+    padding: 7px 11px;
+    border-radius: 12px;
+    background: rgba(16,7,38,.82);
+    border: 1px solid rgba(255,215,90,.65);
+    color: white;
+    font-size: 13px;
+}
+
+.hudBox strong {
+    color: #ffd75a;
+}
+
+#progressWrap {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 45px;
+    height: 6px;
+    background: rgba(255,255,255,.18);
+    border-radius: 5px;
+    overflow: hidden;
+    z-index: 29;
+}
+
+#progressBar {
+    width: 0%;
+    height: 100%;
+    background: #ffd75a;
+    transition: width .2s;
+}
+
+/* BUTTONS */
+button {
+    border: none;
+    border-radius: 12px;
+    padding: 11px 18px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(135deg,#ffd75a,#f1a52b);
+    color: #27102f;
+    box-shadow: 0 4px 10px rgba(0,0,0,.3);
+}
+
+button:active {
+    transform: scale(.96);
+}
+
+#pauseBtn,
+#soundBtn {
+    position: absolute;
+    z-index: 40;
+    top: 105px;
+}
+
+#pauseBtn {
+    right: 12px;
+}
+
+#soundBtn {
+    left: 12px;
+}
+
+/* MOBILE CONTROLS */
+#mobileControls {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 4px;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.controlBtn {
+    width: 95px;
+    height: 43px;
+    padding: 5px;
+    font-size: 22px;
+}
+
+/* OVERLAYS */
+.overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(8,3,25,.78);
+    backdrop-filter: blur(4px);
+}
+
+.panel {
+    width: min(90%, 500px);
+    padding: 28px;
+    text-align: center;
+    border-radius: 22px;
+    border: 2px solid #ffd75a;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(60,28,100,.96),
+            rgba(20,8,48,.97)
+        );
+    color: white;
+    box-shadow: 0 0 35px rgba(255,210,80,.25);
+}
+
+.panel h2 {
+    margin-top: 0;
+    color: #ffd75a;
+    font-size: 30px;
+}
+
+.panel p {
+    line-height: 1.6;
+    color: #f7edff;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* COUNTDOWN */
+#countdown {
+    position: absolute;
+    inset: 0;
+    z-index: 90;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(70px, 16vw, 150px);
+    font-weight: bold;
+    color: #ffd75a;
+    text-shadow: 0 0 30px #ffb300;
+}
+
+/* FLOAT SCORE */
+.floatScore {
+    position: absolute;
+    z-index: 70;
+    color: #ffe16b;
+    font-weight: bold;
+    font-size: 20px;
+    pointer-events: none;
+    animation: floatUp .8s forwards;
+}
+
+@keyframes floatUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+}
+
+/* PARTICLES */
+.particle {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ffd75a;
+    pointer-events: none;
+    z-index: 80;
+    animation: particleFly .7s forwards;
+}
+
+@keyframes particleFly {
+    from {
+        opacity: 1;
+        transform: translate(0,0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate(var(--dx),var(--dy)) scale(.2);
+    }
+}
+
+@media (max-width: 600px) {
+    #gameShell {
+        width: 100vw;
+        height: 100vh;
+        border-width: 2px;
+    }
+
+    #pandal {
+        transform: translateX(-50%) scale(.8);
+        transform-origin: top center;
+    }
+
+    .hudBox {
+        min-width: auto;
+        padding: 5px 7px;
+        font-size: 11px;
+    }
+
+    #pauseBtn,
+    #soundBtn {
+        top: 102px;
+        padding: 8px 12px;
+    }
+
+    .panel {
+        padding: 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="gameShell">
+
+    <div class="sky">
+        <div class="moon"></div>
+
+        <div class="star" style="left:8%;top:18%;">✦</div>
+        <div class="star" style="left:18%;top:35%;">✦</div>
+        <div class="star" style="left:30%;top:12%;">✦</div>
+        <div class="star" style="left:43%;top:28%;">✦</div>
+        <div class="star" style="left:61%;top:13%;">✦</div>
+        <div class="star" style="left:73%;top:35%;">✦</div>
+        <div class="star" style="left:86%;top:17%;">✦</div>
+
+        <div class="cloud" style="left:5%;top:8%;">☁</div>
+        <div class="cloud" style="right:18%;top:22%;">☁</div>
+    </div>
+
+    <div class="lights">
+        <div class="bulb"></div>
+        <div class="bulb"></div>
+        <div class="bulb"></div>
+        <div class="bulb"></div>
+        <div class="bulb"></div>
+        <div class="bulb"></div>
+        <div class="bulb"></div>
+        <div class="bulb"></div>
+        <div class="bulb"></div>
+        <div class="bulb"></div>
+        <div class="bulb"></div>
+        <div class="bulb"></div>
+    </div>
+
+    <div id="festivalHeader">
+        <h1>🐘 MUSHak DASH</h1>
+        <p>🪔 Grand Ganesh Festival Night 🪔</p>
+    </div>
+
+    <div id="pandal">
+        <div class="pandalRoof"></div>
+        <div class="pandalBody">
+            <div class="ganesha">🐘</div>
+        </div>
+    </div>
+
+    <button id="soundBtn">🔊</button>
+    <button id="pauseBtn">⏸ Pause</button>
+
+    <div id="playArea">
+        <div id="road"></div>
+        <div id="player">
+            <div id="shieldRing"></div>
+            🐭
+        </div>
+        <div id="countdown"></div>
+    </div>
+
+    <div id="hud">
+        <div class="hudBox">⭐ Score: <strong id="score">0</strong></div>
+        <div class="hudBox">❤️ Lives: <strong id="lives">3</strong></div>
+        <div class="hudBox">🎯 Level: <strong id="level">1</strong></div>
+        <div class="hudBox">🏆 Best: <strong id="best">0</strong></div>
+        <div class="hudBox">🛡️ Shield: <strong id="shieldStatus">No</strong></div>
+    </div>
+
+    <div id="progressWrap">
+        <div id="progressBar"></div>
+    </div>
+
+    <div id="mobileControls">
+        <button class="controlBtn" id="leftBtn">⬅️</button>
+        <button class="controlBtn" id="rightBtn">➡️</button>
+    </div>
+
+    <!-- START -->
+    <div class="overlay" id="startScreen">
+        <div class="panel">
+            <h2>🪔 Mushak Dash</h2>
+            <p>
+                Help Mushak travel through the beautiful
+                Ganesh festival night!
+            </p>
+            <p>
+                ⭐ Collect festival items<br>
+                🛡️ Collect shields<br>
+                ⚠️ Avoid obstacles
+            </p>
+            <button id="startBtn">START FESTIVAL</button>
+        </div>
+    </div>
+
+    <!-- PAUSE -->
+    <div class="overlay hidden" id="pauseScreen">
+        <div class="panel">
+            <h2>⏸ Game Paused</h2>
+            <p>Take a short break and continue the festival run.</p>
+            <button id="resumeBtn">▶ RESUME</button>
+        </div>
+    </div>
+
+    <!-- LEVEL COMPLETE -->
+    <div class="overlay hidden" id="levelComplete">
+        <div class="panel">
+            <h2>🎉 Level Complete!</h2>
+            <p id="levelCompleteText"></p>
+            <button id="nextLevelBtn">NEXT LEVEL</button>
+        </div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div class="overlay hidden" id="gameOver">
+        <div class="panel">
+            <h2>🪔 Festival Run Over</h2>
+            <p id="gameOverText"></p>
+            <button id="restartBtn">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <!-- VICTORY -->
+    <div class="overlay hidden" id="victory">
+        <div class="panel">
+            <h2>🎊 FESTIVAL VICTORY! 🎊</h2>
+            <p>
+                Wonderful! Mushak completed all 5 festival levels.
+            </p>
+            <p id="victoryScore"></p>
+            <button id="victoryBtn">PLAY AGAIN</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* =========================================================
+   MUSHAK DASH V5.2
+   Stable Falling Object Engine
+========================================================= */
+
+const gameShell = document.getElementById("gameShell");
+const playArea = document.getElementById("playArea");
+const player = document.getElementById("player");
+
+const scoreEl = document.getElementById("score");
+const livesEl = document.getElementById("lives");
+const levelEl = document.getElementById("level");
+const bestEl = document.getElementById("best");
+const shieldStatusEl = document.getElementById("shieldStatus");
+const progressBar = document.getElementById("progressBar");
+
+const startScreen = document.getElementById("startScreen");
+const pauseScreen = document.getElementById("pauseScreen");
+const levelComplete = document.getElementById("levelComplete");
+const gameOver = document.getElementById("gameOver");
+const victory = document.getElementById("victory");
+
+const countdown = document.getElementById("countdown");
+
+const startBtn = document.getElementById("startBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const soundBtn = document.getElementById("soundBtn");
+const resumeBtn = document.getElementById("resumeBtn");
+const nextLevelBtn = document.getElementById("nextLevelBtn");
+const restartBtn = document.getElementById("restartBtn");
+const victoryBtn = document.getElementById("victoryBtn");
+
+const leftBtn = document.getElementById("leftBtn");
+const rightBtn = document.getElementById("rightBtn");
+
+/* GAME STATE */
+let score = 0;
+let lives = 3;
+let level = 1;
+let playerX = 50;
+let shield = false;
+
+let running = false;
+let paused = false;
+let countdownRunning = false;
+
+let objects = [];
+let lastTime = 0;
+let spawnTimer = 0;
+let animationId = null;
+
+let soundEnabled = true;
+let audioContext = null;
+let musicTimer = null;
+
+/* BEST SCORE */
+let bestScore = Number(localStorage.getItem("mushakDashBest") || 0);
+bestEl.textContent = bestScore;
+
+/* LEVEL DATA */
+const levels = {
+    1: {
+        target: 100,
+        speed: 0.18,
+        spawn: 850
+    },
+    2: {
+        target: 250,
+        speed: 0.23,
+        spawn: 760
+    },
+    3: {
+        target: 450,
+        speed: 0.28,
+        spawn: 680
+    },
+    4: {
+        target: 700,
+        speed: 0.34,
+        spawn: 600
+    },
+    5: {
+        target: 1000,
+        speed: 0.40,
+        spawn: 530
+    }
+};
+
+const currentLevel = () => levels[level];
+
+/* ITEM TYPES */
+const items = [
+    { emoji: "🪔", points: 15 },
+    { emoji: "🌸", points: 10 },
+    { emoji: "🍬", points: 20 },
+    { emoji: "🪷", points: 15 },
+    { emoji: "✨", points: 25 }
+];
+
+const obstacles = [
+    "🪨",
+    "🟣",
+    "🔴"
+];
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+function beep(freq, duration = 0.08, type = "sine") {
+    if (!soundEnabled) return;
+
+    try {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = type;
+        oscillator.frequency.value = freq;
+
+        gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audioContext.currentTime + duration
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + duration);
+    } catch (e) {}
+}
+
+function startMusic() {
+    if (!soundEnabled || musicTimer) return;
+
+    const notes = [261, 329, 392, 523, 392, 329];
+    let i = 0;
+
+    musicTimer = setInterval(() => {
+        if (running && !paused) {
+            beep(notes[i % notes.length], 0.12, "triangle");
+            i++;
+        }
+    }, 700);
+}
+
+function stopMusic() {
+    if (musicTimer) {
+        clearInterval(musicTimer);
+        musicTimer = null;
+    }
+}
+
+soundBtn.addEventListener("click", () => {
+    soundEnabled = !soundEnabled;
+    soundBtn.textContent = soundEnabled ? "🔊" : "🔇";
+
+    if (soundEnabled) {
+        beep(500);
+        startMusic();
+    } else {
+        stopMusic();
+    }
+});
+
+/* =========================================================
+   UI
+========================================================= */
+
+function updateHUD() {
+    scoreEl.textContent = score;
+    livesEl.textContent = lives;
+    levelEl.textContent = level;
+    bestEl.textContent = bestScore;
+    shieldStatusEl.textContent = shield ? "YES" : "No";
+
+    const target = currentLevel().target;
+    const previousTarget = level === 1 ? 0 : levels[level - 1].target;
+    const progress =
+        ((score - previousTarget) /
+        (target - previousTarget)) * 100;
+
+    progressBar.style.width =
+        Math.max(0, Math.min(100, progress)) + "%";
+}
+
+function hideAllScreens() {
+    startScreen.classList.add("hidden");
+    pauseScreen.classList.add("hidden");
+    levelComplete.classList.add("hidden");
+    gameOver.classList.add("hidden");
+    victory.classList.add("hidden");
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetGame() {
+    score = 0;
+    lives = 3;
+    level = 1;
+    playerX = 50;
+    shield = false;
+
+    running = false;
+    paused = false;
+    countdownRunning = false;
+
+    spawnTimer = 0;
+    lastTime = performance.now();
+
+    removeAllObjects();
+
+    player.style.left = "50%";
+    player.classList.remove("shielded");
+
+    updateHUD();
+}
+
+/* =========================================================
+   OBJECT ENGINE
+========================================================= */
+
+function removeAllObjects() {
+    for (const object of objects) {
+        if (object.el && object.el.parentNode) {
+            object.el.remove();
+        }
+    }
+
+    objects = [];
+}
+
+function createObject() {
+
+    const isObstacle = Math.random() < 0.27;
+
+    const el = document.createElement("div");
+    el.className =
+        "fallingObject " +
+        (isObstacle ? "obstacle" : "item");
+
+    let data;
+
+    if (isObstacle) {
+        data = {
+            emoji:
+                obstacles[
+                    Math.floor(Math.random() * obstacles.length)
+                ],
+            points: 0
+        };
+    } else {
+        data =
+            items[
+                Math.floor(Math.random() * items.length)
+            ];
+    }
+
+    el.textContent = data.emoji;
+
+    /*
+        IMPORTANT V5.2 FIX:
+        We store falling position in PIXELS.
+        CSS transform is used for movement.
+        This avoids the old top/y coordinate problem.
+    */
+
+    const areaWidth = playArea.clientWidth;
+
+    const x =
+        8 +
+        Math.random() * 84;
+
+    const y = -65;
+
+    el.style.left = x + "%";
+    el.style.transform =
+        "translate3d(-50%, " + y + "px, 0)";
+
+    playArea.appendChild(el);
+
+    const object = {
+        el: el,
+        x: x,
+        y: y,
+        obstacle: isObstacle,
+        points: data.points,
+        width: 52,
+        height: 52
+    };
+
+    objects.push(object);
+}
+
+function createShield() {
+
+    const el = document.createElement("div");
+
+    el.className = "fallingObject shield";
+    el.textContent = "🛡️";
+
+    const x =
+        10 +
+        Math.random() * 80;
+
+    const y = -65;
+
+    el.style.left = x + "%";
+    el.style.transform =
+        "translate3d(-50%, " + y + "px, 0)";
+
+    playArea.appendChild(el);
+
+    objects.push({
+        el: el,
+        x: x,
+        y: y,
+        obstacle: false,
+        shieldItem: true,
+        points: 0,
+        width: 52,
+        height: 52
+    });
+}
+
+/* =========================================================
+   COLLISION
+========================================================= */
+
+function checkCollision(object) {
+
+    const playerY =
+        playArea.clientHeight -
+        25 -
+        31;
+
+    const horizontalDistance =
+        Math.abs(object.x - playerX);
+
+    const verticalDistance =
+        Math.abs(object.y - playerY);
+
+    return (
+        horizontalDistance < 8 &&
+        verticalDistance < 50
+    );
+}
+
+function processCollision(object) {
+
+    if (object.shieldItem) {
+
+        shield = true;
+        player.classList.add("shielded");
+
+        score += 30;
+
+        showFloatScore(
+            object.x,
+            object.y,
+            "🛡️ +30"
+        );
+
+        createParticles(object.x, object.y);
+        beep(700, .15, "triangle");
+
+        updateHUD();
+        return;
+    }
+
+    if (object.obstacle) {
+
+        if (shield) {
+
+            shield = false;
+            player.classList.remove("shielded");
+
+            showFloatScore(
+                object.x,
+                object.y,
+                "🛡️ BLOCKED!"
+            );
+
+            createParticles(object.x, object.y);
+            beep(850, .15, "square");
+
+        } else {
+
+            lives--;
+
+            showFloatScore(
+                object.x,
+                object.y,
+                "💥 -1 LIFE"
+            );
+
+            createParticles(object.x, object.y);
+            beep(120, .25, "sawtooth");
+
+            if (lives <= 0) {
+                endGame();
+                return;
+            }
+        }
+
+        updateHUD();
+        return;
+    }
+
+    score += object.points;
+
+    showFloatScore(
+        object.x,
+        object.y,
+        "+" + object.points
+    );
+
+    createParticles(object.x, object.y);
+
+    beep(550 + object.points * 8, .1, "sine");
+
+    updateHUD();
+
+    checkLevel();
+}
+
+/* =========================================================
+   FALLING LOOP
+========================================================= */
+
+function gameLoop(timestamp) {
+
+    animationId =
+        requestAnimationFrame(gameLoop);
+
+    if (!running || paused || countdownRunning) {
+        lastTime = timestamp;
+        return;
+    }
+
+    let delta =
+        timestamp - lastTime;
+
+    lastTime = timestamp;
+
+    /*
+        Prevent huge jumps if browser tab was inactive.
+    */
+    delta = Math.min(delta, 50);
+
+    spawnTimer += delta;
+
+    if (spawnTimer >= currentLevel().spawn) {
+
+        createObject();
+
+        spawnTimer = 0;
+
+        /*
+            Small chance for shield.
+        */
+        if (Math.random() < 0.055) {
+            createShield();
+        }
+    }
+
+    const speed =
+        currentLevel().speed;
+
+    const areaHeight =
+        playArea.clientHeight;
+
+    for (let i = objects.length - 1; i >= 0; i--) {
+
+        const object = objects[i];
+
+        /*
+            V5.2 STABLE MOVEMENT:
+            y is always increased by elapsed time.
+        */
+        object.y +=
+            speed * delta;
+
+        object.el.style.transform =
+            "translate3d(-50%, " +
+            object.y +
+            "px, 0)";
+
+        /*
+            Collision near player.
+        */
+        if (checkCollision(object)) {
+
+            processCollision(object);
+
+            if (object.el.parentNode) {
+                object.el.remove();
+            }
+
+            objects.splice(i, 1);
+
+            continue;
+        }
+
+        /*
+            Remove ONLY after object has completely
+            passed the bottom of the play area.
+        */
+        if (
+            object.y >
+            areaHeight + 70
+        ) {
+
+            if (object.el.parentNode) {
+                object.el.remove();
+            }
+
+            objects.splice(i, 1);
+        }
+    }
+
+    /*
+        Passive survival score.
+    */
+    if (
+        Math.floor(timestamp / 1000) !==
+        Math.floor((timestamp - delta) / 1000)
+    ) {
+
+        score += 2;
+
+        updateHUD();
+
+        checkLevel();
+    }
+}
+
+/* =========================================================
+   LEVEL SYSTEM
+========================================================= */
+
+function checkLevel() {
+
+    if (!running) return;
+
+    const target =
+        currentLevel().target;
+
+    if (score < target) return;
+
+    running = false;
+
+    removeAllObjects();
+
+    if (level >= 5) {
+
+        victoryScore.textContent =
+            "🏆 Final Score: " + score;
+
+        if (score > bestScore) {
+            bestScore = score;
+            localStorage.setItem(
+                "mushakDashBest",
+                bestScore
+            );
+        }
+
+        updateHUD();
+
+        victory.classList.remove("hidden");
+
+        beep(523,.2);
+        setTimeout(() => beep(659,.2),180);
+        setTimeout(() => beep(784,.3),360);
+
+        return;
+    }
+
+    levelCompleteText.textContent =
+        "You reached Level " +
+        level +
+        " with " +
+        score +
+        " points!";
+
+    levelComplete.classList.remove("hidden");
+
+    beep(523,.15);
+    setTimeout(() => beep(659,.15),150);
+}
+
+/* =========================================================
+   COUNTDOWN
+========================================================= */
+
+function runCountdown(callback) {
+
+    countdownRunning = true;
+    countdown.style.display = "flex";
+
+    const sequence = ["3", "2", "1", "GO!"];
+    let index = 0;
+
+    function next() {
+
+        if (index >= sequence.length) {
+
+            countdown.style.display = "none";
+            countdownRunning = false;
+
+            callback();
+            return;
+        }
+
+        countdown.textContent =
+            sequence[index];
+
+        beep(
+            index === 3 ? 800 : 500,
+            .12
+        );
+
+        index++;
+
+        setTimeout(next, 700);
+    }
+
+    next();
+}
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+function startGame() {
+
+    resetGame();
+
+    hideAllScreens();
+
+    runCountdown(() => {
+
+        running = true;
+        paused = false;
+        lastTime = performance.now();
+        spawnTimer = 0;
+
+        startMusic();
+    });
+}
+
+/* =========================================================
+   NEXT LEVEL
+========================================================= */
+
+function nextLevel() {
+
+    level++;
+
+    shield = false;
+    player.classList.remove("shielded");
+
+    removeAllObjects();
+
+    levelComplete.classList.add("hidden");
+
+    updateHUD();
+
+    runCountdown(() => {
+
+        running = true;
+        paused = false;
+        lastTime = performance.now();
+        spawnTimer = 0;
+
+        startMusic();
+    });
+}
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+function endGame() {
+
+    running = false;
+    paused = false;
+
+    removeAllObjects();
+    stopMusic();
+
+    if (score > bestScore) {
+
+        bestScore = score;
+
+        localStorage.setItem(
+            "mushakDashBest",
+            bestScore
+        );
+    }
+
+    gameOverText.textContent =
+        "Score: " +
+        score +
+        " | Level: " +
+        level +
+        " | Best: " +
+        bestScore;
+
+    updateHUD();
+
+    gameOver.classList.remove("hidden");
+
+    beep(160,.4,"sawtooth");
+}
+
+/* =========================================================
+   PAUSE
+========================================================= */
+
+function togglePause() {
+
+    if (!running) return;
+
+    paused = true;
+
+    pauseScreen.classList.remove("hidden");
+
+    stopMusic();
+}
+
+function resumeGame() {
+
+    pauseScreen.classList.add("hidden");
+
+    paused = false;
+
+    lastTime = performance.now();
+
+    startMusic();
+}
+
+/* =========================================================
+   PLAYER MOVEMENT
+========================================================= */
+
+function movePlayer(direction) {
+
+    if (!running || paused) return;
+
+    playerX += direction * 7;
+
+    playerX =
+        Math.max(
+            8,
+            Math.min(92, playerX)
+        );
+
+    player.style.left =
+        playerX + "%";
+}
+
+/* KEYBOARD */
+document.addEventListener("keydown", (event) => {
+
+    if (
+        event.key === "ArrowLeft" ||
+        event.key.toLowerCase() === "a"
+    ) {
+        movePlayer(-1);
+    }
+
+    if (
+        event.key === "ArrowRight" ||
+        event.key.toLowerCase() === "d"
+    ) {
+        movePlayer(1);
+    }
+
+    if (
+        event.key === " " ||
+        event.key.toLowerCase() === "p"
+    ) {
+
+        if (running && !paused) {
+            togglePause();
+        }
+    }
+});
+
+/* MOBILE / MOUSE BUTTONS */
+leftBtn.addEventListener("pointerdown", () => {
+    movePlayer(-1);
+});
+
+rightBtn.addEventListener("pointerdown", () => {
+    movePlayer(1);
+});
+
+/* TOUCH SCREEN */
+playArea.addEventListener(
+    "touchstart",
+    handleTouch,
+    { passive: true }
+);
+
+playArea.addEventListener(
+    "touchmove",
+    handleTouch,
+    { passive: true }
+);
+
+function handleTouch(event) {
+
+    if (!running || paused) return;
+
+    const touch =
+        event.touches[0];
+
+    const rect =
+        playArea.getBoundingClientRect();
+
+    const x =
+        touch.clientX -
+        rect.left;
+
+    const percent =
+        (x / rect.width) * 100;
+
+    playerX =
+        Math.max(
+            8,
+            Math.min(92, percent)
+        );
+
+    player.style.left =
+        playerX + "%";
+}
+
+/* =========================================================
+   EFFECTS
+========================================================= */
+
+function showFloatScore(
+    x,
+    y,
+    text
+) {
+
+    const el =
+        document.createElement("div");
+
+    el.className = "floatScore";
+    el.textContent = text;
+
+    el.style.left =
+        x + "%";
+
+    el.style.top =
+        Math.max(10, y) + "px";
+
+    playArea.appendChild(el);
+
+    setTimeout(() => {
+        el.remove();
+    }, 800);
+}
+
+function createParticles(
+    x,
+    y
+) {
+
+    for (let i = 0; i < 8; i++) {
+
+        const particle =
+            document.createElement("div");
+
+        particle.className =
+            "particle";
+
+        particle.style.left =
+            x + "%";
+
+        particle.style.top =
+            y + "px";
+
+        particle.style.setProperty(
+            "--dx",
+            ((Math.random() - .5) * 100) + "px"
+        );
+
+        particle.style.setProperty(
+            "--dy",
+            ((Math.random() - .5) * 100) + "px"
+        );
+
+        playArea.appendChild(particle);
+
+        setTimeout(() => {
+            particle.remove();
+        }, 700);
+    }
+}
+
+/* =========================================================
+   BUTTON EVENTS
+========================================================= */
+
+startBtn.addEventListener(
+    "click",
+    startGame
+);
+
+restartBtn.addEventListener(
+    "click",
+    startGame
+);
+
+victoryBtn.addEventListener(
+    "click",
+    startGame
+);
+
+nextLevelBtn.addEventListener(
+    "click",
+    nextLevel
+);
+
+pauseBtn.addEventListener(
+    "click",
+    togglePause
+);
+
+resumeBtn.addEventListener(
+    "click",
+    resumeGame
+);
+
+/* =========================================================
+   INITIALIZE V5.2
+========================================================= */
+
+resetGame();
+
+hideAllScreens();
+
+startScreen.classList.remove("hidden");
+
+pauseBtn.style.display = "none";
+
+animationId =
+    requestAnimationFrame(gameLoop);
+
+/*
+    Show pause button only during gameplay.
+*/
+setInterval(() => {
+
+    pauseBtn.style.display =
+        running
+            ? "block"
+            : "none";
+
+}, 200);
+
+/* Initial HUD */
+updateHUD();
+
+</script>
+
+</body>
+</html>
